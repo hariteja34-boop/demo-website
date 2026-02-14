@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Checkout - Food Delivery</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .checkout-container{max-width:700px;margin:2rem auto;padding:0 1rem}
+    .checkout-box{background:#fff;border-radius:12px;padding:2rem;box-shadow:0 6px 18px rgba(15,23,42,.06)}
+    .order-items{margin:1.5rem 0}
+    .order-item{display:flex;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid #e2e8f0}
+    .order-item:last-child{border-bottom:none}
+    .form-group{margin:1rem 0}
+    .form-group label{display:block;margin-bottom:.5rem;font-weight:600}
+    .form-group input{width:100%;padding:.75rem;border:1px solid #e2e8f0;border-radius:8px;font-size:1rem}
+    .summary{background:#f6f8fb;padding:1rem;border-radius:8px;margin:1.5rem 0}
+    .summary-row{display:flex;justify-content:space-between;padding:.5rem 0;font-weight:600}
+    .summary-row.total{border-top:2px solid #e2e8f0;padding-top:.75rem;font-size:1.2rem}
+    .pay-btn{background:#ef4444;color:#fff;border:none;width:100%;padding:1rem;border-radius:8px;font-size:1.1rem;font-weight:600;cursor:pointer;margin-top:1rem}
+    .pay-btn:hover{background:#dc2626}
+    .back-link{display:inline-block;margin-bottom:1rem;color:#ef4444;text-decoration:none;font-weight:600}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <div class="brand">
+        <div class="logo">🍔</div>
+        <div>
+          <p class="micro">Fast local food delivery — demo</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="checkout-container">
+    <a href="index.html" class="back-link">← Back to Menu</a>
+    
+    <div class="checkout-box">
+      <h2>Order Summary</h2>
+      
+      <div class="order-items" id="order-items">
+        <!-- Items will be populated by JavaScript -->
+      </div>
+
+      <div class="summary">
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span>$<span id="subtotal">0.00</span></span>
+        </div>
+        <div class="summary-row">
+          <span>Delivery Fee:</span>
+          <span>$<span id="delivery">2.99</span></span>
+        </div>
+        <div class="summary-row">
+          <span>Tax (8%):</span>
+          <span>$<span id="tax">0.00</span></span>
+        </div>
+        <div class="summary-row total">
+          <span>Total:</span>
+          <span>$<span id="total">0.00</span></span>
+        </div>
+      </div>
+
+      <h3>Delivery Information</h3>
+      <form id="checkout-form">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" name="name" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" name="phone" required>
+        </div>
+        <div class="form-group">
+          <label>Delivery Address</label>
+          <input type="text" name="address" required>
+        </div>
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" name="city" required>
+        </div>
+        <button type="submit" class="pay-btn">Proceed to Payment</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const DELIVERY_FEE = 2.99;
+    const TAX_RATE = 0.08;
+
+    function loadCheckout() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      
+      if (cart.length === 0) {
+        document.getElementById('order-items').innerHTML = '<p>Your cart is empty</p>';
+        return;
+      }
+
+      let html = '';
+      let subtotal = 0;
+
+      cart.forEach(item => {
+        const itemTotal = item.price * item.qty;
+        subtotal += itemTotal;
+        html += `
+          <div class="order-item">
+            <span>${item.name} x${item.qty}</span>
+            <span>$${itemTotal.toFixed(2)}</span>
+          </div>
+        `;
+      });
+
+      document.getElementById('order-items').innerHTML = html;
+
+      const tax = subtotal * TAX_RATE;
+      const total = subtotal + DELIVERY_FEE + tax;
+
+      document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+      document.getElementById('tax').textContent = tax.toFixed(2);
+      document.getElementById('total').textContent = total.toFixed(2);
+    }
+
+    document.getElementById('checkout-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const orderData = {
+        ...Object.fromEntries(formData),
+        cart: JSON.parse(localStorage.getItem('cart')),
+        total: document.getElementById('total').textContent
+      };
+      localStorage.setItem('orderData', JSON.stringify(orderData));
+      window.location.href = 'payment.html';
+    });
+
+    loadCheckout();
+  </script>
+</body>
+</html>

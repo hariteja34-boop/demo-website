@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const cartBtn = document.getElementById('cart-btn');
   const cartEl = document.getElementById('cart');
 
-  let cart = [];
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
   function format(n){return Number(n).toFixed(2)}
 
@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     });
     const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
     cartTotalEl.textContent = format(total);
+    localStorage.setItem('cart', JSON.stringify(cart));
   }
 
   function addToCart(id,name,price){
@@ -43,6 +44,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
   cartBtn.addEventListener('click', ()=>{
     cartEl.scrollIntoView({behavior:'smooth'});
   })
+
+  // Checkout button
+  const checkoutBtn = document.getElementById('checkout');
+  if(checkoutBtn){
+    checkoutBtn.addEventListener('click', ()=>{
+      if(cart.length === 0){
+        alert('Your cart is empty!');
+        return;
+      }
+      window.location.href = 'checkout.html';
+    })
+  }
 
   // initial render
   renderCart();
